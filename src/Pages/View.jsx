@@ -1,12 +1,33 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaFileDownload,FaBackward } from "react-icons/fa";
 import Edit from '../Components/Edit';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { IoDocumentText } from "react-icons/io5";
 import { IoMdRefresh } from "react-icons/io";
 import Preview from '../Components/Preview';
+import { viewResumeApi } from '../service/apiService';
 
 function View() {
+
+const [resume,setResume] = useState() 
+
+const {id} = useParams()
+console.log(resume);
+
+useEffect(()=>{
+  getResumeDetails()
+},[])
+
+
+const getResumeDetails = async () =>{
+  const response = await viewResumeApi(id)
+  if(response.status===200){
+    setResume(response.data)
+  }
+  
+}
+
+
   return (
     <div className='container my-5'>
       <div className='row'>
@@ -26,7 +47,7 @@ function View() {
             <Link style={{color:'#171412'}} to={'/resume-details'} className='btn mx-2'><FaBackward /> Previous</Link>
           </div>
           <div className='p-5'>
-            <Preview/>
+            <Preview resumeDetails={resume}/>
           </div>
         </div>
         <div className="col-lg-2"></div>

@@ -10,6 +10,7 @@ import Saved from './Pages/Saved'
 import View from './Pages/View'
 import Header from './Components/Header'
 import Footer from './Components/Footer'
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   
@@ -29,6 +30,7 @@ function App() {
         <Route path='/resume/:id' element={<View/>}/>
       </Routes>
       <Footer/>
+      <ToastContainer position="top-center" theme="colored" autoClose={3000} />
     </>
   )
 }
