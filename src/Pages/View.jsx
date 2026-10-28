@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FaFileDownload,FaBackward } from "react-icons/fa";
 import Edit from '../Components/Edit';
 import { Link, useParams } from 'react-router-dom';
@@ -6,17 +6,22 @@ import { IoDocumentText } from "react-icons/io5";
 import { IoMdRefresh } from "react-icons/io";
 import Preview from '../Components/Preview';
 import { viewResumeApi } from '../service/apiService';
+import { jsPDF } from "jspdf";
+import html2canvas from 'html2canvas';
+
 
 function View() {
 
 const [resume,setResume] = useState() 
 
+const previewRef = useRef()
+
 const {id} = useParams()
-console.log(resume);
 
 useEffect(()=>{
   getResumeDetails()
 },[])
+
 
 
 const getResumeDetails = async () =>{
@@ -24,8 +29,17 @@ const getResumeDetails = async () =>{
   if(response.status===200){
     setResume(response.data)
   }
-  
 }
+
+ const generatePDF = async () =>{
+  const previewTag = previewRef.current
+  const canvas = await html2canvas(previewTag)
+      const pdf = new jsPDF()
+      const imageWidth = pdf.internal.pageSize.getWidth()
+      const imageHeight = pdf.internal.pageSize.getHeight()
+      pdf.addImage (canvas,"PNG",0,0,imageWidth,imageHeight)
+      pdf.save("resume.pdf")
+    }
 
 
   return (
@@ -36,9 +50,9 @@ const getResumeDetails = async () =>{
           {/* Navigation Icons */}
           <div className='d-flex justify-content-center align-items-center'>
             {/* Download */}
-            <button style={{color:'#171412'}} className='btn mx-2'><FaFileDownload /> Download CV</button>
+            <button onClick={generatePDF} style={{color:'#171412'}} className='btn mx-2'><FaFileDownload /> Download CV</button>
             {/* Edit */}
-            <Edit/>
+            <Edit resumeDetails={resume} setResumeDetails={setResume}/>
             {/* All Resumes */}
             {/* <Link style={{color:'#171412'}} to={'/all-resumes'} className='btn mx-2'><IoDocumentText /> All Resumes</Link> */}
             {/* Download History */}
@@ -46,7 +60,7 @@ const getResumeDetails = async () =>{
             {/* Back */}
             <Link style={{color:'#171412'}} to={'/resume-details'} className='btn mx-2'><FaBackward /> Previous</Link>
           </div>
-          <div className='p-5'>
+          <div ref={previewRef} className='p-5'>
             <Preview resumeDetails={resume}/>
           </div>
         </div>
