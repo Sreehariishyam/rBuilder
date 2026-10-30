@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { FaSearch, FaTrash } from "react-icons/fa";
+import { FaBackward, FaForward, FaSearch, FaTrash } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import { deleteAllResumeApi, getAllResumeApi } from '../service/apiService';
 
@@ -10,8 +10,14 @@ function Saved() {
   const [searchKey,setSearchKey] = useState("")
   const [dummyAllResumes,setDummyAllResumes] = useState([])
 
-  console.log(searchKey);
-  
+  // console.log(searchKey);
+
+  const [currentPage,setCurrentPage]=useState(1)
+  const rowPerPage = 4
+  const lastIndexofCurrentPage = currentPage * rowPerPage
+  const firstIndexOfCurrentPage = lastIndexofCurrentPage - rowPerPage
+  const currentResumes = allResumes.slice(firstIndexOfCurrentPage,lastIndexofCurrentPage)
+  const totalPages = Math.ceil(allResumes.length/rowPerPage)
 
   useEffect(()=>{
     searchKey=="" ? getAllResumes() : searchCandidate()
@@ -60,9 +66,9 @@ const removeResume = async (id)=>{
         </thead>
         <tbody>
           {
-            allResumes?.length>0?
+            currentResumes?.length>0?
 
-            allResumes?.map((resume,index)=>(
+            currentResumes?.map((resume,index)=>(
               <tr key={resume?.id}>
             <td>{index+1}</td>
             <td><Link to={`/resume/${resume?.id}`}>{resume?.fullname.toUpperCase()}</Link></td>
@@ -80,7 +86,16 @@ const removeResume = async (id)=>{
         )
           }
         </tbody>
-      </table>      
+      </table>  
+      <div className='d-flex align-items-center'>
+          <button className='btn' onClick={()=>setCurrentPage(currentPage-1)} disabled={currentPage==1}>
+          <FaBackward/>
+          </button>
+          {currentPage} of {totalPages}
+          <button className='btn' onClick={()=>setCurrentPage(currentPage+1)} disabled={currentPage==totalPages || totalPages==0}>
+          <FaForward/>
+          </button>
+      </div>    
     </div>
   )
 }

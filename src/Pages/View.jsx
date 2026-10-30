@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom';
 import { IoDocumentText } from "react-icons/io5";
 import { IoMdRefresh } from "react-icons/io";
 import Preview from '../Components/Preview';
-import { viewResumeApi } from '../service/apiService';
+import { downloadResumeApi, viewResumeApi } from '../service/apiService';
 import { jsPDF } from "jspdf";
 import html2canvas from 'html2canvas';
 
@@ -31,16 +31,47 @@ const getResumeDetails = async () =>{
   }
 }
 
- const generatePDF = async () =>{
+const downloadCV = async()=>{
   const previewTag = previewRef.current
   const canvas = await html2canvas(previewTag)
-      const pdf = new jsPDF()
+  canvas.toBlob(async(imgFile)=>{
+    // create formdata to send file via api
+    const formData = new FormData
+    formData.append("file",imgFile)
+    formData.append("upload_preset","my-resume")
+    const result = await fetch("https://api.cloudinary.com/v1_1/mgrmpaty/image/upload",{
+      method:"POST",
+      body:formData
+    })
+    const serverData = await result.json()
+    const url = serverData.secure_url
+    // console.log(url);
+    generatePDF(url)
+    
+  })
+}
+
+ const generatePDF = async (resumeImg) =>{
+      const pdf = new jsPDF()      
       const imageWidth = pdf.internal.pageSize.getWidth()
       const imageHeight = pdf.internal.pageSize.getHeight()
-      pdf.addImage (canvas,"PNG",0,0,imageWidth,imageHeight)
-      pdf.save("resume.pdf")
+      pdf.addImage (resumeImg,"PNG",0,0,imageWidth,imageHeight)
+
+      const today = new Date()
+      const timeStamp = `${today.toLocaleDateString()},${today.toLocaleTimeString()}`
+      console.log(timeStamp);
+
+      const result = await downloadResumeApi({timeStamp,resumeImg,resumeId:resume.id,jobrole:resume.job})
+
+      if(result.status===201){
+        // download CV
+        pdf.save(`${resume.fullname}CV.pdf`)
+      }
+      
     }
 
+    // {
+    //}
 
   return (
     <div className='container my-5'>
@@ -50,7 +81,7 @@ const getResumeDetails = async () =>{
           {/* Navigation Icons */}
           <div className='d-flex justify-content-center align-items-center'>
             {/* Download */}
-            <button onClick={generatePDF} style={{color:'#171412'}} className='btn mx-2'><FaFileDownload /> Download CV</button>
+            <button onClick={downloadCV} style={{color:'#171412'}} className='btn mx-2'><FaFileDownload /> Download CV</button>
             {/* Edit */}
             <Edit resumeDetails={resume} setResumeDetails={setResume}/>
             {/* All Resumes */}
