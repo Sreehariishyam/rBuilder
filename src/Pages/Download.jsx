@@ -81,7 +81,7 @@ function Download() {
         <h3>Downloaded Resume History</h3>
         <Button className='btn text-light' style={{ backgroundColor: "#171412" }} onClick={handleOpen}>View in chart</Button>
       </div>
-      <p className='mt-3 fs-3 fw-semibold text-primary'>Total downloaded resumes from oue site is <span className='fw-bolder text-danger'>{downloadList.length}</span></p>
+      <p className='mt-3 fs-3 fw-semibold text-primary'>Total downloaded resumes from our site is <span className='fw-bolder text-danger'>{downloadList.length}</span></p>
       <div className='row my-5'>
         {/* Duplicate the row according to the resume count */}
         {
